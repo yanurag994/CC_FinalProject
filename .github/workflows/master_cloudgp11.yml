@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'cloudgp11'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D7E144BA79B54503B9B93BE732BB48A5 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E1333B256B7A4CC4A326561CE09EDA61 }}
