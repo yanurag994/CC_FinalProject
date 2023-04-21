@@ -5,7 +5,11 @@
 
     <a href="{{ url_for('choices') }}" class="btn btn-primary btn-large">Click here to get back to choice selection</a>
     <h1 class="title">Data Pulls for House Numbers</h1>
-    <script type='module' src='https://prod-useast-b.online.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js'></script><tableau-viz id='tableau-viz' token="{{jwt}}" src='https://prod-useast-b.online.tableau.com/t/helixv10/views/CloudAssignment/DataPullsforHouseNumbers_Dash' hide-tabs toolbar='bottom' ></tableau-viz></body>
-
+    <script type='module'
+        src='https://prod-useast-b.online.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js'></script>
+    <tableau-viz id='tableau-viz' token="{{jwt}}"
+        src='https://prod-useast-b.online.tableau.com/t/helixv10/views/CloudAssignment/DataPullForHouseHolds' hide-tabs
+        toolbar='bottom'></tableau-viz>
+</body>
 
 {% endblock %}

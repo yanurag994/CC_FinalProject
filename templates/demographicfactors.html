@@ -2,10 +2,13 @@
 {% block content %}
 
 <body>
-<a href="{{ url_for('choices') }}" class="btn btn-primary btn-large">Click here to get back to choice selection</a>
-<h1 class="title">Below are the demographic factors appear to affect customer engagement</h1>
-<script type='module' src='https://prod-useast-b.online.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js'></script><tableau-viz id='tableau-viz' token="{{jwt}}" src='https://prod-useast-b.online.tableau.com/t/helixv10/views/CloudAssignment/Dashboard2' hide-tabs toolbar='bottom' ></tableau-viz>
-
-
+    <a href="{{ url_for('choices') }}" class="btn btn-primary btn-large">Click here to get back to choice selection</a>
+    <h1 class="title">Below are the demographic factors appear to affect customer engagement</h1>
+    <script type='module'
+        src='https://prod-useast-b.online.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js'></script>
+    <tableau-viz id='tableau-viz' token="{{jwt}}"
+        src='https://prod-useast-b.online.tableau.com/t/helixv10/views/CloudAssignment/KPIDashboard' hide-tabs
+        toolbar='bottom'></tableau-viz>
+</body>
 
 {% endblock %}
