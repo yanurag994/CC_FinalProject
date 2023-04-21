@@ -39,8 +39,7 @@ def get_token():
     )
 
 
-UPLOAD_FOLDER = '/home/azureuser/CC_FinalProject/static/files/'
-template_folder = '/home/azureuser/CC_FinalProject/templates/'
+UPLOAD_FOLDER = './static/files/'
 
 app = Flask(__name__)
 
