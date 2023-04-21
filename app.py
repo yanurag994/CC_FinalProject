@@ -8,7 +8,7 @@ import re
 import hashlib
 import pymssql
 import csv
-import jwt,datetime
+import jwt,datetime,uuid
 
 connectedAppClientId = os.environ['CONNECTED_APP_CLIENT_ID']
 connectedAppSecretKey = os.environ['CONNECTED_APP_SECRET_KEY']
@@ -23,8 +23,8 @@ def get_token():
     return jwt.encode(
 	{
 		"iss": connectedAppClientId,
-		"exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=5),
-		"jti": "Alpha tag",
+		"exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=30),
+		"jti": str(uuid.uuid4()),
 		"aud": "tableau",
 		"sub": user,
 		"scp": ["tableau:views:embed", "tableau:metrics:embed"],
