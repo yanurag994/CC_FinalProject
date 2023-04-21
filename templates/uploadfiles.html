@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+<a href="{{ url_for('choices') }}" class="btn btn-primary btn-large">Click here to get back to choice selection</a>
+<div class="box">
+    <h3>Upload files below</h3>
+
+    <form enctype = "multipart/form-data" action="{{ url_for('uploadfiles') }}" method="post">
+        <div>
+        <label for="households">please upload households file below</label>
+        <input type="file"  name="households" id="households" accept=".csv" required="required"/>
+        </div>
+        <div>
+        <label for="products">please upload products file below</label>
+        <input type="file"  name="products" id="products" accept=".csv" required="required"/>
+        </div>
+        <div>
+        <label for="transactions">please upload transactions file below</label>
+        <input type="file"  name="transactions" id="transactions" accept=".csv" required="required"/>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-large">Submit Details.</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Please select one of the following choices </h1>
+
+<div class="box">
+
+
+  <a href="{{ url_for('datapullhousenum') }}" class="btn btn-primary btn-block btn-large">Click here to get the DataPulls for House Numbers from Sample Files given</a>
+  <a href="{{ url_for('demographicfactors') }}" class="btn btn-primary btn-block btn-large">Click here to see the demographic factors which appear to affect customer engagement</a>
+  <a href="{{ url_for('uploadfiles') }}" class="btn btn-primary btn-block btn-large">Click here to upload new transactions, households, and products</a>
+
+
+</div>
+
+{% endblock %}
