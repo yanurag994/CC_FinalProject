@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'kpidash'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_214C20CED85949DF86507762B6346F6C }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_EE9A15A258854263A1FEF22953517116 }}
