@@ -12,11 +12,12 @@ import uuid
 connectedAppClientId = os.environ['CONNECTED_APP_CLIENT_ID']
 connectedAppSecretKey = os.environ['CONNECTED_APP_SECRET_KEY']
 connectedAppSecretId = os.environ['CONNECTED_APP_SECRET_ID']
-user = os.environ['USER']
+user = os.environ['TABLEAU_USER']
 server = os.environ['AZURE_SQL_SERVER']
 database = os.environ['AZURE_SQL_DATABASE']
 username = os.environ['AZURE_SQL_USER']
 password = os.environ['AZURE_SQL_PASSWORD']
+port = os.environ['AZURE_SQL_PORT']
 
 
 def get_token():
@@ -45,7 +46,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'secret-key-goes-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mssql+pymssql://' + \
-    username+':'+password+'@'+server+':1433/'+database
+    username+':'+password+'@'+server+':'+port+'/'+database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
