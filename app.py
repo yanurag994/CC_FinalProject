@@ -13,10 +13,10 @@ connectedAppClientId = os.environ['CONNECTED_APP_CLIENT_ID']
 connectedAppSecretKey = os.environ['CONNECTED_APP_SECRET_KEY']
 connectedAppSecretId = os.environ['CONNECTED_APP_SECRET_ID']
 user = os.environ['USER']
-server = os.environ['SERVER']
-database = os.environ['DATABASE']
-username = os.environ['USERNAME_SQL']
-password = os.environ['PASSWORD']
+server = os.environ['AZURE_SQL_SERVER']
+database = os.environ['AZURE_SQL_DATABASE']
+username = os.environ['AZURE_SQL_USER']
+password = os.environ['AZURE_SQL_PASSWORD']
 
 
 def get_token():
