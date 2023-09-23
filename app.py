@@ -28,6 +28,14 @@ cursor = conn.cursor()
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+class User(UserMixin):
+    def __init__(self, id, email, username, password, files_uploaded):
+        self.id = id
+        self.email = email
+        self.username = username
+        self.password = password
+        self.files_uploaded = files_uploaded
+
 @login_manager.user_loader
 def load_user(user_id):
     # Use pymssql to fetch the user by user_id from the database
