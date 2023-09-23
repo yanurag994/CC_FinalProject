@@ -39,12 +39,11 @@ class User(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     # Use pymssql to fetch the user by user_id from the database
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM app_users WHERE id = %s", (user_id,))
-        row = cursor.fetchone()
-        if row:
-            return User(id=row[0],email=row[1], username=row[2], password=row[3], files_uploaded=row[4])
-        return None
+    cursor.execute("SELECT * FROM app_users WHERE id = %s", (user_id,))
+    row = cursor.fetchone()
+    if row:
+        return User(id=row[0],email=row[1], username=row[2], password=row[3], files_uploaded=row[4])
+    return None
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -56,16 +55,15 @@ def register():
         username = request.form.get('username')
         password = hashlib.md5(request.form.get('password').encode()).hexdigest()
 
-        with conn.cursor() as cursor:
-            cursor.execute("INSERT INTO app_users (email, username, password, files_uploaded) VALUES (%s, %s, %s, %s)", (email, username, password, 'No'))
-            conn.commit()
-            cursor.execute("SELECT * FROM app_users WHERE username = %s", (username,))
-            row = cursor.fetchone()
-            if row and row[3] == password:
-                # Password match, log in the user
-                user = User(id=row[0],email=row[1], username=row[2], password=row[3], files_uploaded=row[4])
-                login_user(user)
-                return redirect(url_for('choices'))
+        cursor.execute("INSERT INTO app_users (email, username, password, files_uploaded) VALUES (%s, %s, %s, %s)", (email, username, password, 'No'))
+        conn.commit()
+        cursor.execute("SELECT * FROM app_users WHERE username = %s", (username,))
+        row = cursor.fetchone()
+        if row and row[3] == password:
+            # Password match, log in the user
+            user = User(id=row[0],email=row[1], username=row[2], password=row[3], files_uploaded=row[4])
+            login_user(user)
+            return redirect(url_for('choices'))
 
     return render_template("register.html")
 
@@ -78,14 +76,13 @@ def login():
         password = hashlib.md5(request.form.get('password').encode()).hexdigest()
         
         # Fetch the user from the database based on the provided username
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM app_users WHERE username = %s", (username,))
-            row = cursor.fetchone()
-            if row and row[3] == password:
-                # Password match, log in the user
-                user = User(id=row[0],email=row[1], username=row[2], password=row[3], files_uploaded=row[4])
-                login_user(user)
-                return redirect(url_for('choices'))
+        cursor.execute("SELECT * FROM app_users WHERE username = %s", (username,))
+        row = cursor.fetchone()
+        if row and row[3] == password:
+            # Password match, log in the user
+            user = User(id=row[0],email=row[1], username=row[2], password=row[3], files_uploaded=row[4])
+            login_user(user)
+            return redirect(url_for('choices'))
     
     return render_template("login.html")
 
@@ -105,44 +102,44 @@ def process_file(file, op, cursor, batch_size):
                 batch = []
         if len(batch) != 0:
             cursor.executemany(op, batch)
+    conn.commit()
 
 
 @app.route('/uploadfiles', methods=["GET", "POST"])
 @login_required
 def uploadfiles():
     if request.method == "POST":
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM app_users WHERE username = %s", (current_user.username))
-            row = cursor.fetchone()
+        cursor.execute("SELECT * FROM app_users WHERE username = %s", (current_user.username))
+        row = cursor.fetchone()
 
-            if row:
-                user = User(id=row[0],email=row[1], username=row[2], password=row[3], files_uploaded=row[4])
-                user_hash = hashlib.md5(current_user.username.encode()).hexdigest()
+        if row:
+            user = User(id=row[0],email=row[1], username=row[2], password=row[3], files_uploaded=row[4])
+            user_hash = hashlib.md5(current_user.username.encode()).hexdigest()
 
-                # Process 'households' file
-                file = request.files['households']
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
-                op = "INSERT INTO household_data (HSHD_NUM, L, AGE_RANGE, MARITAL, INCOME_RANGE, HOMEOWNER, HSHD_COMPOSITION, HH_SIZE, CHILDREN) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                process_file(open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r'), op, cursor, 1000)
+            # Process 'households' file
+            file = request.files['households']
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
+            op = "INSERT INTO household_data (HSHD_NUM, L, AGE_RANGE, MARITAL, INCOME_RANGE, HOMEOWNER, HSHD_COMPOSITION, HH_SIZE, CHILDREN) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            process_file(open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r'), op, cursor, 1000)
 
-                # Process 'products' file
-                file = request.files['products']
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
-                op = "INSERT INTO product_data (PRODUCT_NUM,DEPARTMENT,COMMODITY,BRAND_TY,NATURAL_ORGANIC_FLAG) VALUES (%s, %s, %s, %s, %s)"
-                process_file(open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r'), op, cursor, 10000)
+            # Process 'products' file
+            file = request.files['products']
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
+            op = "INSERT INTO product_data (PRODUCT_NUM,DEPARTMENT,COMMODITY,BRAND_TY,NATURAL_ORGANIC_FLAG) VALUES (%s, %s, %s, %s, %s)"
+            process_file(open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r'), op, cursor, 10000)
 
-                # Process 'transactions' file
-                file = request.files['transactions']
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
-                op = "INSERT INTO transaction_data (BASKET_NUM,HSHD_NUM,PURCHASE_DATE,PRODUCT_NUM,SPEND,UNITS,STORE_R,WEEK_NUM,YEAR) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                process_file(open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r'), op, cursor, 100000)
-
-                user.files_uploaded = 'Yes'
-                login_user(user)
-                return redirect(url_for('datapullhousenum'))
-            else:
-                user = None
-                user_hash = None
+            # Process 'transactions' file
+            file = request.files['transactions']
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
+            op = "INSERT INTO transaction_data (BASKET_NUM,HSHD_NUM,PURCHASE_DATE,PRODUCT_NUM,SPEND,UNITS,STORE_R,WEEK_NUM,YEAR) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            process_file(open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r'), op, cursor, 100000)
+            
+            user.files_uploaded = 'Yes'
+            login_user(user)
+            return redirect(url_for('datapullhousenum'))
+        else:
+            user = None
+            user_hash = None
     return render_template("uploadfiles.html")
 
 
@@ -200,4 +197,4 @@ def home():
     return render_template("index.html")
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=8080)
