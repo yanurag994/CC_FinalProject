@@ -15,11 +15,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Execute SQL Script
-        run: |
-          az sql db execute-command -s your_server -d your_database -u your_username -p "${{ secrets.SQL_PASSWORD }}" --sql-file "path/to/your/sql_script.sql"
-
+          
         # Azure logout
       - name: logout
         run: |
