@@ -5,7 +5,7 @@ CREATE TABLE app_users (
     password VARCHAR(1000),
     files_uploaded VARCHAR(255)
 );
-CREATE TABLE household_data (
+CREATE TABLE household_data (z
     HSHD_NUM INT PRIMARY KEY,
     L VARCHAR(255),
     AGE_RANGE VARCHAR(50),

@@ -1,0 +1,23 @@
+name: Create Azure Table
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create_table:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+        # Azure logout
+      - name: logout
+        run: |
+              az logout
+        if: always()

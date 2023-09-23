@@ -38,14 +38,6 @@ def load_user(user_id):
             return User(id=row[0],email=row[1], username=row[2], password=row[3], files_uploaded=row[4])
         return None
 
-# CREATE TABLE
-class User(UserMixin):
-    def __init__(self, id, email, username, password, files_uploaded):
-        self.id = id
-        self.email = email
-        self.username = username
-        self.password = password
-        self.files_uploaded = files_uploaded
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
