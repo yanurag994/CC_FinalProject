@@ -5,7 +5,7 @@ CREATE TABLE app_users (
     password VARCHAR(1000),
     files_uploaded VARCHAR(255)
 );
-CREATE TABLE household_data (z
+CREATE TABLE household_data (
     HSHD_NUM INT PRIMARY KEY,
     L VARCHAR(255),
     AGE_RANGE VARCHAR(50),
@@ -24,7 +24,7 @@ CREATE TABLE product_data (
     NATURAL_ORGANIC_FLAG VARCHAR(1)
 );
 CREATE TABLE transaction_data (
-    BASKET_NUM INT
+    BASKET_NUM INT,
     HSHD_NUM INT,
     PURCHASE_DATE DATE,
     PRODUCT_NUM INT,
