@@ -71,6 +71,21 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(1000))
     files_uploaded = db.Column(db.String(255))
 
+def process_file(file, op, cursor, batch_size):
+    progress_tracker=0
+    with file as f:
+        reader = csv.reader(f)
+        next(reader)  # skip the first row (header)
+        batch = []
+        for row in reader:
+            row = [None if val.strip() == 'null' else val.strip() for val in row]
+            batch.append(tuple(row))
+            if len(batch) >= batch_size:
+                cursor.executemany(op, batch)
+                progress_tracker+=1
+                batch = []
+        if len(batch) != 0:
+            cursor.executemany(op, batch)
 
 with app.app_context():
     db.create_all()
@@ -135,53 +150,28 @@ def uploadfiles():
     if request.method == "POST":
         user = User.query.filter_by(username=current_user.username).first()
         user_hash = hashlib.md5(current_user.username.encode()).hexdigest()
-        file = request.files['households']
-        file.save(os.path.join(
-            app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
+
         conn = pymssql.connect(
-            server=server, database=database, user=username, password=password)
+            server=server, database=database, user=username,port=port,password=password)
         cursor = conn.cursor()
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r') as f:
-            reader = csv.reader(f)
-            next(reader)  # skip the first row (header)
-            for row in reader:
-                row = [None if val.strip() == 'null' else val.strip()
-                       for val in row]
-                cursor.execute("INSERT INTO household_data (HSHD_NUM, L, AGE_RANGE, MARITAL, INCOME_RANGE, HOMEOWNER, HSHD_COMPOSITION, HH_SIZE, CHILDREN) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", (
-                    row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
+        # Process 'households' file
+        file = request.files['households']
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
+        op = "INSERT INTO household_data (HSHD_NUM, L, AGE_RANGE, MARITAL, INCOME_RANGE, HOMEOWNER, HSHD_COMPOSITION, HH_SIZE, CHILDREN) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        process_file(open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r'), op, cursor, 1000)
+
+        # Process 'products' file
         file = request.files['products']
-        file.save(os.path.join(
-            app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
+        op = "INSERT INTO product_data (PRODUCT_NUM,DEPARTMENT,COMMODITY,BRAND_TY,NATURAL_ORGANIC_FLAG) VALUES (%s, %s, %s, %s, %s)"
+        process_file(open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r'), op, cursor, 10000)
 
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r') as f:
-            reader = csv.reader(f)
-            next(reader)  # skip the first row (header)
-            for row in reader:
-                row = [None if val.strip() == 'null' else val.strip()
-                       for val in row]
-                cursor.execute("INSERT INTO product_data (PRODUCT_NUM,DEPARTMENT,COMMODITY,BRAND_TY,NATURAL_ORGANIC_FLAG) VALUES (%s, %s, %s, %s, %s)", (
-                    row[0], row[1], row[2], row[3], row[4]))
-
+        # Process 'transactions' file
         file = request.files['transactions']
-        file.save(os.path.join(
-            app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
-
-        with open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r') as f:
-            reader = csv.reader(f)
-            next(reader)  # skip the first row (header)
-            batch_size = 10000
-            batch = []
-            op = "INSERT INTO transaction_data (BASKET_NUM,HSHD_NUM,PURCHASE_DATE,PRODUCT_NUM,SPEND,UNITS,STORE_R,WEEK_NUM,YEAR) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            for row in reader:
-                row = [None if val.strip() == 'null' else val.strip()
-                       for val in row]
-                batch.append(tuple(row))
-                if len(batch) >= batch_size:
-                    cursor.executemany(op, batch)
-                    batch = []
-            if len(batch) != 0:
-                cursor.executemany(op, batch)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename))
+        op = "INSERT INTO transaction_data (BASKET_NUM,HSHD_NUM,PURCHASE_DATE,PRODUCT_NUM,SPEND,UNITS,STORE_R,WEEK_NUM,YEAR) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        process_file(open(os.path.join(app.config['UPLOAD_FOLDER'], user_hash + '_in_' + file.filename), 'r'), op, cursor, 100000)
 
         conn.commit()
         user.files_uploaded = 'Yes'
